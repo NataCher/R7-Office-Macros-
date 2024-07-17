@@ -1,29 +1,34 @@
-(function() {
-    var mailto = "example@example.com"; // Адрес получателя
-    var subject = "Документ из Р7-офис"; // Тема письма
-    var body = "Здравствуйте,\n\nВо вложении документ из Р7-офис.\n\nС уважением,\nВаша команда"; 
+function sendEmail() {
+  try {
+    // Получаем текущий активный документ Excel
+    var excelApp = new ActiveXObject("Excel.Application");
+    var excelWorkbook = excelApp.ActiveWorkbook;
 
-    // Получаем текущий документ
-    var document = Api.GetDocument();
-    var docUrl = document.GetUrl();
+    if (!excelWorkbook) {
+      alert("Откройте документ Excel перед запуском макроса.");
+      return;
+    }
 
-    // Создаем письмо
-    var message = {
-        to: mailto,
-        subject: subject,
-        body: body,
-        attachments: [{
-            name: document.GetTitle() + ".docx",
-            content: docUrl
-        }]
-    };
+    // Создаем объект для доступа к Outlook
+    var outlookApp = new ActiveXObject("Outlook.Application");
+    var mailItem = outlookApp.CreateItem(0); // Создаем новое письмо
+
+    // Заполняем поля письма
+    mailItem.Subject = "Отправка документа Excel";
+    mailItem.Body = "Документ Excel для вас.";
+    mailItem.To = "recipient@example.com"; // Укажите адрес получателя
+
+    // Прикрепляем текущий документ Excel к письму
+    var attachment = excelWorkbook.FullName;
+    mailItem.Attachments.Add(attachment);
 
     // Отправляем письмо
-    Api.SendMail(message, function(response) {
-        if (response.status === "success") {
-            Api.ShowMessage("Успех", "Письмо успешно отправлено.");
-        } else {
-            Api.ShowMessage("Ошибка", "Ошибка при отправке письма: " + response.error);
-        }
-    });
-})();
+    mailItem.Send();
+
+    // Закрываем Excel после отправки письма
+    excelApp.Quit();
+  } catch (err) {
+    alert("Произошла ошибка: " + err.message);
+  }
+}
+
