@@ -1,0 +1,16 @@
+function sendDocumentByEmail() {
+    // Получаем текущий документ
+    var currentDoc = Document.current; 
+    if (currentDoc) {
+        // Получаем доступ к электронной почте и отправляем документ
+        var email = "recipient@example.com";
+        var subject = "Документ из Р7-офиса";
+        var body = "Привет, прикрепляю документ для вас.";
+
+        // Прикрепляем документ к письму
+        var attachment = currentDoc.getFile(); // Гипотетическая функция для получения файла документа
+        R7.sendEmail(email, subject, body, attachment); // Примерная функция отправки письма через Р7-офис
+    } else {
+        console.log("Документ не найден или не открыт.");
+    }
+}
