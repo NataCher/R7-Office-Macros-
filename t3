@@ -1,0 +1,31 @@
+(function() {
+    try {
+        // Получение текущего открытого документа в Р7-Оффис
+        var currentDocument = window.P7OfficeAPI.getDocument(); // Предположим, что такая функция существует
+        var documentPath = currentDocument.path; // Получение пути к документу
+
+        // Проверка, что документ успешно получен
+        if (!documentPath) {
+            throw new Error("Не удалось получить путь к документу.");
+        }
+
+        // Создание объекта Outlook
+        var outlookApp = new ActiveXObject("Outlook.Application");
+        var mailItem = outlookApp.CreateItem(0); // 0: olMailItem
+
+        // Настройки письма
+        mailItem.Subject = "Тема письма";
+        mailItem.Body = "Текст письма";
+        mailItem.To = "recipient@example.com";
+
+        // Добавление вложения
+        mailItem.Attachments.Add(documentPath);
+
+        // Отправка письма
+        mailItem.Send();
+
+        alert("Письмо успешно отправлено!");
+    } catch (e) {
+        alert("Произошла ошибка: " + e.message);
+    }
+})();
