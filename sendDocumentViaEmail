@@ -1,0 +1,34 @@
+function sendDocumentViaEmail() {
+    try {
+        var oApplication = new ActiveXObject("Outlook.Application");
+        var oItem = oApplication.CreateItem(0); // 0: olMailItem
+
+        // Получаем активный документ
+        var oDocument = R7Office.getDocument();
+
+        // Устанавливаем свойства письма
+        oItem.Subject = "Ваш документ из R7-Office";
+        oItem.Body = "Здравствуйте,\n\nПожалуйста, найдите во вложении документ из R7-Office.";
+        oItem.To = "recipient@example.com"; // Измените на необходимый адрес
+
+        // Сохраняем документ во временный файл
+        var tempFilePath = oDocument.saveAsTempFile();
+
+        // Добавляем документ как вложение
+        var attachment = oItem.Attachments.Add(tempFilePath);
+
+        // Отправляем письмо
+        oItem.Send();
+
+        // Удаляем временный файл, если требуется
+        // Можно добавить код для удаления файла здесь, если необходимо
+
+        console.log("Письмо отправлено успешно!");
+
+    } catch (e) {
+        console.error("Произошла ошибка: " + e.message);
+    }
+}
+
+// Пример вызова функции
+sendDocumentViaEmail();
