@@ -1,16 +1,29 @@
-function sendDocumentByEmail() {
-    // Получаем текущий документ
-    var currentDoc = Document.current; 
-    if (currentDoc) {
-        // Получаем доступ к электронной почте и отправляем документ
-        var email = "recipient@example.com";
-        var subject = "Документ из Р7-офиса";
-        var body = "Привет, прикрепляю документ для вас.";
+(function() {
+    var mailto = "example@example.com"; // Адрес получателя
+    var subject = "Документ из Р7-офис"; // Тема письма
+    var body = "Здравствуйте,\n\nВо вложении документ из Р7-офис.\n\nС уважением,\nВаша команда"; 
 
-        // Прикрепляем документ к письму
-        var attachment = currentDoc.getFile(); // Гипотетическая функция для получения файла документа
-        R7.sendEmail(email, subject, body, attachment); // Примерная функция отправки письма через Р7-офис
-    } else {
-        console.log("Документ не найден или не открыт.");
-    }
-}
+    // Получаем текущий документ
+    var document = Api.GetDocument();
+    var docUrl = document.GetUrl();
+
+    // Создаем письмо
+    var message = {
+        to: mailto,
+        subject: subject,
+        body: body,
+        attachments: [{
+            name: document.GetTitle() + ".docx",
+            content: docUrl
+        }]
+    };
+
+    // Отправляем письмо
+    Api.SendMail(message, function(response) {
+        if (response.status === "success") {
+            Api.ShowMessage("Успех", "Письмо успешно отправлено.");
+        } else {
+            Api.ShowMessage("Ошибка", "Ошибка при отправке письма: " + response.error);
+        }
+    });
+})();
