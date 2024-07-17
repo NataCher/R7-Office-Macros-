@@ -1,0 +1,4 @@
+(function()
+{
+Api.GetActiveSheet().FormatAsTable(«A1:G7»);
+})();
