@@ -1,0 +1,23 @@
+// Функция для отправки рабочей книги
+function sendWorkbook() {
+    // Отправка текущей рабочей книги
+    R7Office.activeWorkbook.sendMail({
+        recipients: "vasya@pupkin.com",
+        subject: "Лови файлик"
+    });
+}
+
+// Функция для отправки листа
+function sendSheet() {
+    // Копирование листа "Лист1" текущей книги
+    var sheetCopy = R7Office.thisWorkbook.sheets.get("Лист1").copy();
+
+    // Отправка скопированной рабочей книги
+    sheetCopy.sendMail({
+        recipients: "vasya@pupkin.com",
+        subject: "Лови файлик"
+    });
+
+    // Закрытие рабочей книги без сохранения изменений
+    sheetCopy.close({ saveChanges: false });
+}
