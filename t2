@@ -1,0 +1,72 @@
+async function sendEmailWithAttachment() {
+    try {
+        // Получаем активный лист Excel
+        await Excel.run(async (context) => {
+            const worksheet = context.workbook.worksheets.getActiveWorksheet();
+            worksheet.load("name");
+
+            await context.sync();
+
+            // Создаем временную копию листа как новую книгу
+            const tempSheet = worksheet.name;
+            const tempWorkbook = context.workbook.worksheets.getItem(tempSheet).copy();
+
+            // Определяем временную директорию
+            const tempFilePath = Office.context.environment.fileSystem.temporaryDirectory;
+
+            // Генерируем уникальное имя временного файла
+            const tempFileName = "TempSheet.xlsx";
+            const fileFullPath = `${tempFilePath}/${tempFileName}`;
+
+            // Сохраняем временную книгу
+            await context.sync();
+            await tempWorkbook.saveAsAsync(fileFullPath, Excel.SaveAsFileType.Compressed);
+
+            // Закрываем временную книгу
+            tempWorkbook.delete();
+            await context.sync();
+
+            // Составляем электронное письмо
+            const emailSubject = "Ваша тема письма";
+            const emailBody = "Привет, вот прикрепленный лист.";
+
+            // Получаем адрес получателя (замените на реальный адрес)
+            const recipientEmail = "получатель@example.com";
+
+            // Создаем сообщение Outlook
+            const item = Office.context.mailbox.item;
+            item.subject.set(emailSubject);
+            item.body.setAsync(emailBody);
+
+            // Прикрепляем конкретный лист
+            const attachmentURI = `file://${fileFullPath}`;
+            item.addFileAttachmentAsync(attachmentURI, tempFileName);
+
+            // Отправляем письмо (раскомментируйте следующую строку для отображения письма перед отправкой)
+            // await item.displayNewMessageForm();
+
+            // Отправляем письмо
+            await item.send();
+
+            // Удаляем временный файл
+            Office.context.document.getFilePropertiesAsync(async (fileResult) => {
+                const fileId = fileResult.value.id;
+                Office.context.document.getFileAsync(Office.FileType.Compressed, { sliceSize: 65536 }, async (result) => {
+                    if (result.status === Office.AsyncResultStatus.Succeeded) {
+                        const file = result.value;
+                        file.closeAsync(async () => {
+                            await Office.context.document.getFileAsync(Office.FileType.Compressed, { sliceSize: 65536 }, async (result) => {
+                                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                    const file = result.value;
+                                    file.deleteAsync();
+                                }
+                            });
+                        });
+                    }
+                });
+            });
+        });
+    } catch (error) {
+        console.error(`Ошибка: ${error}`);
+    }
+}
